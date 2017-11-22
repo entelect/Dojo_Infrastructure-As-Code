@@ -32,3 +32,8 @@ end
 ```
 
 The example Vagrantfile can be found in _x_windows_.
+
+The Vagrant files have been updated to detect what the host machine is and run
+the correct version as required.
+
+You can find additional information [here](https://www.vagrantup.com/docs/provisioning/ansible_local.html)
