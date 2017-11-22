@@ -14,3 +14,21 @@ shell.
 4. Run `vagrant up`
 
 Apply each example as required
+
+# Windows
+
+You cannot install ansible for windows. Instead you have to configure the vagrant
+machines to use ansible local instead. This will install ansible to the local
+virtual machine and executes ansible from the virtual machine instead.
+
+For example:
+```
+Vagrant.configure("2") do |config|
+  # Run Ansible from the Vagrant VM
+  config.vm.provision "ansible_local" do |ansible|
+    ansible.playbook = "playbook.yml"
+  end
+end
+```
+
+The example Vagrantfile can be found in _x_windows_.

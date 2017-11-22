@@ -76,6 +76,11 @@
 
 vagrant destroy
 
+# Running on windows
+
+You can run all of the above examples on windows by including the flag _--provider_.
+For example `vagrant up --provider=hyperv`, remember to run as administrator.
+
 # Notes
 
 This approach is tied to the hardware and provisioning is very distribution dependant,
