@@ -1,14 +1,17 @@
 # Basic Example of starting Vagrant
 
-1. vagrant init hashicorp/precise64
-2. vagrant up
-3. vagrant ssh
-4. wget localhost
-5. sudo apt-get install -y apache2
-6. wget localhost
-7. cat index.html
+The set of basic commands for Vagrant. Please use `vagrant --help` for additional
+details.
+
+1. `vagrant init ubuntu/xenial64` - Generates a new Vagrantfile
+2. `vagrant up` - Downloads and starts the Virtual Machine defined in the Vagrantfile
+3. `vagrant ssh` - Connects to the Virtual Machine via SSH
+4. `vagrant destroy` - Destroys the Vagrant machines previously provisioned
 
 # Getting it done via automation
+
+A quick and dirty example of configuring a new machine and use the default shell
+provisioner to install software on the machine.
 
 1. vagrant init hashicorp/precise64
 2. Edit Vagrantfile, uncomment section
@@ -85,3 +88,7 @@ For example `vagrant up --provider=hyperv`, remember to run as administrator.
 
 This approach is tied to the hardware and provisioning is very distribution dependant,
 eg: package manager on ubuntu is apt-get, so this will not work on a RHEL distro.
+
+# Helpful Links
+
+Using a Corporate CA? Check out this Stack Overflow [answer](https://stackoverflow.com/questions/45475023/configuring-vagrant-ca-certificates)

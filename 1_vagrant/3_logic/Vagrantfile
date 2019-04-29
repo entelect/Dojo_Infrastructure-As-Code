@@ -1,0 +1,57 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+def configure_proxy(config)
+  # If you need additional certificates you can install them here. This is
+  # useful if you have a corporate proxy for example.
+  # You can install plugins with
+  #   vagrant plugin install vagrant-ca-certificates
+  # This configuration will read the ENVIRONMENT variable CA_CERTS for the additional
+  # certificate location
+  if Vagrant.has_plugin?('vagrant-ca-certificates')
+    config.ca_certificates.enabled = true
+    config.ca_certificates.certs = [ENV['CA_CERTS']]
+  end
+
+  # Also configure the Proxy if Required
+  # You can install plugins with
+  #   vagrant plugin install vagrant-proxyconf
+  # Also the proxy settings will be loaded from the http_proxy and https_proxy
+  # environment variables
+  if Vagrant.has_plugin?("vagrant-proxyconf")
+   config.proxy.http     = ENV['http_proxy']
+   config.proxy.https    = ENV['https_proxy']
+   config.proxy.no_proxy = "localhost,127.0.0.1,.example.com"
+ end
+end
+
+Vagrant.configure("2") do |config|
+  # This will randomly pick either the ubuntu or centos box
+  # config.vm.box = ["ubuntu/bionic64", "centos/7"].sample
+  config.vm.box = ["ubuntu/bionic64"].sample
+  # Allows you to talk to the Guest VM via port 8080
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  # You can also create methods or classes in a Vagrantfile
+  configure_proxy(config)
+
+  # Change the provisioner based on the selected box type
+  if config.vm.box.include? 'centos'
+    config.vm.provision "shell", inline: <<-SHELL
+     yum update
+     yum install -y httpd
+    SHELL
+  else
+    config.vm.provision "shell", inline: <<-SHELL
+     apt-get update
+     apt-get install -y apache2
+    SHELL
+  end
+
+  # Finally replace the default page with the local page instead
+  config.vm.provision "file", source: "./files/index.html", destination: "index.html"
+  # Won't have permission to move files by default
+  config.vm.provision "shell", inline: <<-SHELL
+   mv index.html /var/www/html
+   service apache2 restart
+  SHELL
+end

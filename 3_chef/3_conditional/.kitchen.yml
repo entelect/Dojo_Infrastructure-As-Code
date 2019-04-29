@@ -28,5 +28,5 @@ suites:
         - test/smoke/default
     attributes:
       conditional: {
-          create_page: false
+          create_page: true
         }

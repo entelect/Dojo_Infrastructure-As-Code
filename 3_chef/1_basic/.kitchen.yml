@@ -14,10 +14,6 @@ verifier:
 
 platforms:
   - name: hashicorp/precise64
-    driver:
-      provider: hyperv
-      network:
-        - ["private_network", {bridge: "Default Switch"}]
 
 suites:
   - name: default

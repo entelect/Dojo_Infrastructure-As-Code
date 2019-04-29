@@ -8,6 +8,7 @@
   tasks:
   - name: ensure apache is at the latest version
     package: name=apache2 state=latest
+    register: install
   - debug:
       msg: "System {{ ansible_distribution }} has uuid {{ ansible_product_uuid }}"
   - name: write the new web page for Ubuntu
@@ -19,7 +20,8 @@
     template: src=./template/does.not.exist.index.html.j2 dest=/var/www/index.html
     notify:
     - restart apache
-    when: ansible_distribution == "CentOS"
+    when:
+      - ansible_distribution == "CentOS"
   - name: ensure apache is running (and enable it at boot)
     service: name=apache2 state=started enabled=yes
   handlers:
