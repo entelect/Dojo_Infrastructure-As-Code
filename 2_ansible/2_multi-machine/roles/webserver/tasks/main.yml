@@ -1,0 +1,43 @@
+---
+- name: Add Nodesource apt key.
+  apt_key:
+    url: https://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x1655A0AB68576280
+    id: "68576280"
+    state: present
+
+- name: Add NodeSource repositories for Node.js.
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb https://deb.nodesource.com/node_{{ nodejs_version }} {{ ansible_distribution_release }} main"
+    - "deb-src https://deb.nodesource.com/node_{{ nodejs_version }} {{ ansible_distribution_release }} main"
+  register: node_repo
+
+- name: Update apt cache if repo was added.
+  apt: 
+    update_cache: yes
+  when: node_repo.changed
+
+- name: Ensure Node.js and npm are installed.
+  apt: 
+    name: nodejs
+    state: present
+
+- name: Checkout the Code from Git
+  git:
+    repo: https://github.com/jameshibbard/demo-node-app
+    dest: "{{ app_path }}"
+
+- name: Install Packages for the Site
+  npm:
+    path: "{{ app_path }}"
+
+- name: Create the Environment File for the Database Settings
+  copy:
+    dest: "{{ app_path }}/.env"
+    content: |
+      DATABASE=mongodb://192.168.50.3/mean
+
+- name: "Start example Node.js app."
+  shell: cd "{{ app_path }}"; nohup npm run watch </dev/null >/dev/null 2>&1 &

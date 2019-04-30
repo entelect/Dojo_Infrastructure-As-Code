@@ -1,18 +1,13 @@
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
-
-Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/bionic64"
-  # Allows you to talk to the Guest VM via port 8080
-  config.vm.network "forwarded_port", guest: 80, host: 8080
-
+# Configures the Vagrant Proxy and Installs any CA Certificates as required.
+# If you have not installed the plugins, then the following will do nothing
+def configure_proxy(config)  
   # If you need additional certificates you can install them here. This is
   # useful if you have a corporate proxy for example.
   # You can install plugins with
   #   vagrant plugin install vagrant-ca-certificates
   # This configuration will read the ENVIRONMENT variable CA_CERTS for the additional
   # certificate location
-  if Vagrant.has_plugin?('vagrant-ca-certificates')
+  if Vagrant.has_plugin?('vagrant-ca-certificates') && ENV['CA_CERTS']
     config.ca_certificates.enabled = true
     config.ca_certificates.certs = [ENV['CA_CERTS']]
   end
@@ -27,13 +22,4 @@ Vagrant.configure("2") do |config|
    config.proxy.https    = ENV['https_proxy']
    config.proxy.no_proxy = "localhost,127.0.0.1,.example.com"
  end
-
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
-   apt-get update
-   apt-get install -y apache2
-  SHELL
-
 end

@@ -1,0 +1,30 @@
+---
+- name: Add Mongo Repository
+  yum_repository:
+    name: mongodb-org-4.0
+    description: MongoDB Repository
+    file: mongodb-org-4.0
+    baseurl: https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/
+    gpgcheck: 1
+    enabled: 1
+    gpgkey: https://www.mongodb.org/static/pgp/server-4.0.asc
+
+- name: Install Mongo Package
+  package:
+    name: mongodb-org
+    state: present
+
+- name: Configure Mongo for External Interfaces
+  lineinfile:
+    path: /etc/mongod.conf
+    regexp: 'bindIp:'
+    insertafter: 'bindIp:'
+    line: '  bindIp: 0.0.0.0'
+  notify:
+    - Restart the Mongo service
+
+- name: Start and Enable the Mongo service
+  service:
+    name: mongod
+    state: started
+    enabled: true  

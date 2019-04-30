@@ -1,0 +1,53 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+require_relative '../../lib/vagrant_helpers'
+
+# Install and configure the Mongo Database
+def define_db(config)
+  config.vm.box = "centos/7"
+  config.vm.network "private_network", ip: "192.168.50.3"
+  configure_proxy(config)  
+  config.vm.provision "file", source: "./files/mongo-org-4.0.repo", destination: "mongo-org-4.0.repo"  
+  config.vm.provision "shell", inline: <<-SHELL
+    mv mongo-org-4.0.repo /etc/yum.repos.d    
+    yum install -y mongodb-org
+    sed -i "s,\\(^[[:blank:]]*bindIp:\\) .*,\\1 0.0.0.0," /etc/mongod.conf
+    service mongod start
+  SHELL
+end
+
+# Install and configure the Web Server Project
+def define_web(config)
+  config.vm.box = "ubuntu/bionic64"     
+  config.vm.network "private_network", type: "dhcp"
+  config.vm.network "forwarded_port", guest: 3000, host: 3000
+  configure_proxy(config)
+  config.vm.provision "file", source: "./files/.env", destination: ".env"
+  config.vm.provision "shell", inline: <<-SHELL
+    curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+    apt-get update
+    apt-get install -y nodejs
+    git clone https://github.com/jameshibbard/demo-node-app
+    cd demo-node-app
+    cp ../.env .env
+    npm install
+    nohup npm run watch &
+  SHELL
+end
+
+# Sometimes you might want to provision multiple Vagrant Boxes at once. In this example, we will
+# create a Database machine and a Web Service Machine. Which will also show you a way of communicating
+# between the different machines as well.
+# We will deploy the MEAN stack sample found here (https://github.com/jameshibbard/demo-node-app), but we will 
+# put the mongo database on a separate machine.
+Vagrant.configure("2") do |config|
+  # Define the Database Machine first
+  config.vm.define "db" do |db|
+    define_db(db)
+  end
+
+  # Then define the Web Server
+  config.vm.define "web" do |web|
+    define_web(web)    
+  end  
+end

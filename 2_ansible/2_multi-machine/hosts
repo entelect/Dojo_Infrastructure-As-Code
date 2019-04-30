@@ -1,0 +1,7 @@
+# This is an example Hosts File
+# But this is not used by the Vagrant Provisioner
+[database-servers]
+database ansible_host=192.168.50.3
+
+[web-servers]
+web ansible_host=192.168.50.2

@@ -1,0 +1,15 @@
+---
+- hosts: all
+  gather_facts: yes
+  
+- hosts: db
+  remote_user: vagrant
+  become: true
+  roles:
+  - database
+
+- hosts: web
+  remote_user: vagrant
+  become: true
+  roles:
+  - webserver

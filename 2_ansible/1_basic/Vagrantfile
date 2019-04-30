@@ -1,8 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+require_relative '../../lib/vagrant_helpers'
+
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/precise64"
-  #
+  config.vm.box = "ubuntu/bionic64"
+  configure_proxy(config)
+  # Allows you to talk to the Guest VM via port 8080
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Ensure that Python is Installed in order to invoke Ansible on the VM
+  # If you do not want to do this you can invoke the Ansible Commands from
+  # your local machine instead
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -y python
+  SHELL
+
   # Run Ansible from the Vagrant Host
-  #
   if Vagrant::Util::Platform.windows? then
     config.vm.synced_folder '.', '/vagrant', disabled: false, type: "smb", mount_options: ['vers=3.0']
     config.vm.provision "ansible_local" do |ansible|

@@ -2,7 +2,7 @@
 
 ```
 pip install ansible
-vagrant init hashicorp/precise64
+vagrant init ubuntu/bionic64
 ```
 
 We want to configure ansible to install apache2 instead of doing it via vagrant

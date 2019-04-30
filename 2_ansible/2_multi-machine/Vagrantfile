@@ -1,0 +1,59 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+require_relative '../../lib/vagrant_helpers'
+
+def invoke_ansible(config)
+   # Run Ansible from the Vagrant Host
+   if Vagrant::Util::Platform.windows? then
+    config.vm.synced_folder '.', '/vagrant', disabled: false, type: "smb", mount_options: ['vers=3.0']
+    config.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = "playbook.yml"
+      ansible.install_mode = "pip"
+    end
+  else
+    config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "playbook.yml"
+    end
+  end
+end
+
+# Install and configure the Mongo Database
+def define_db(config)
+  config.vm.box = "centos/7"
+  config.vm.network "private_network", ip: "192.168.50.3"
+  configure_proxy(config)
+  invoke_ansible(config)
+end
+
+# Install and configure the Web Server Project
+def define_web(config)
+  config.vm.box = "ubuntu/bionic64"     
+  config.vm.network "private_network", ip: "192.168.50.2"
+  config.vm.network "forwarded_port", guest: 3000, host: 3000
+  configure_proxy(config)
+  # Ensure that Python is Installed in order to invoke Ansible on the VM
+  # If you do not want to do this you can invoke the Ansible Commands from
+  # your local machine instead
+  config.vm.provision "bootstrap", type: "shell", run: "once", inline: <<-SHELL
+    apt-get update
+    apt-get install -y python
+  SHELL
+  invoke_ansible(config)
+end
+
+# Sometimes you might want to provision multiple Vagrant Boxes at once. In this example, we will
+# create a Database machine and a Web Service Machine. Which will also show you a way of communicating
+# between the different machines as well.
+# We will deploy the MEAN stack sample found here (https://github.com/jameshibbard/demo-node-app), but we will 
+# put the mongo database on a separate machine.
+Vagrant.configure("2") do |config|
+  # Define the Database Machine first
+  config.vm.define "db" do |db|
+    define_db(db)
+  end
+
+  # Then define the Web Server
+  config.vm.define "web" do |web|
+    define_web(web)    
+  end   
+end

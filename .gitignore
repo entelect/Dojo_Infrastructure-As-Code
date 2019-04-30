@@ -1,2 +1,5 @@
 .vagrant
 .kitchen
+*.log
+*.retry
+.DS_Store
