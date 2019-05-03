@@ -14,7 +14,10 @@ package 'apache2'
 service('apache2') { action %i(enable start) }
 
 # Create a Template for our web page
-template '/var/www/index.html' do
+template '/var/www/html/index.html' do
   source 'index.html.erb'
+  variables = {
+    site_name: node.name
+  }
   notifies :restart, 'service[apache2]', :immediately
 end

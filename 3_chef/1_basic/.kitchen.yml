@@ -1,6 +1,8 @@
 ---
 driver:
   name: vagrant
+  network:
+  - ["forwarded_port", {guest: 80, host: 8080}]
 
 provisioner:
   name: chef_zero
@@ -13,7 +15,7 @@ verifier:
   name: inspec
 
 platforms:
-  - name: hashicorp/precise64
+  - name: ubuntu/bionic64
 
 suites:
   - name: default

@@ -3,8 +3,6 @@
 Generate some example cookbooks
 ```
 chef generate cookbook basic
-chef generate cookbook variables
-chef generate cookbook conditional
 ```
 
 # Basic
